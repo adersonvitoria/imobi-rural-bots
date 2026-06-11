@@ -1,2 +1,4 @@
 # Config local do Claude Code (caminhos absolutos da máquina)
 .claude/
+
+.vercel
