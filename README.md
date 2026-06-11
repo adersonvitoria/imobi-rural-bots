@@ -6,8 +6,9 @@ Demonstração de produto para a **A.G.A. Assessoria Imobiliária e Jurídica** 
 
 | Arquivo | O que é |
 |---|---|
-| [`index.html`](index.html) | Página de apresentação: proposta dos robôs (carteira + prospecção), mockups de iPhone com conversas, dashboard de KPIs e funil de leads |
-| [`plataforma.html`](plataforma.html) | Plataforma com login, visão de **Diretor** (empresa inteira: KPIs, leads, equipe, financeiro) e visão de **Corretor** (carteira própria e comissões), além da tela **Testar Robô** — chat interativo num iPhone com catálogo de 8 imóveis e fotos reais |
+| [`index.html`](index.html) | Plataforma com login, visão de **Diretor** (empresa inteira: KPIs, leads, equipe, financeiro) e visão de **Corretor** (carteira própria e comissões), além da tela **Testar Robô** — chat interativo num iPhone com catálogo de 8 imóveis e fotos reais |
+
+O acesso abre direto na tela de login (`/plataforma.html` antigo redireciona para a raiz via `vercel.json`).
 
 ## Acessos de demonstração (tela de login)
 

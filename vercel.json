@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/plataforma.html", "destination": "/", "permanent": true },
+    { "source": "/plataforma", "destination": "/", "permanent": true }
+  ]
+}
