@@ -963,8 +963,8 @@ function renderFin(){
     $('#finChartEl').innerHTML = FIN_MESES.labels.map((m,i) => `
       <div class="cgroup">
         <div class="cbars">
-          <div class="cbar-col"><span class="cv" style="color:var(--gold-2)">${FIN_MESES.receber[i]}</span><div class="cbar l" style="height:${Math.round(FIN_MESES.receber[i]/2.2)}%;animation-delay:${.1+i*.08}s"></div></div>
-          <div class="cbar-col"><span class="cv" style="color:var(--danger)">${FIN_MESES.pagar[i]}</span><div class="cbar p" style="height:${Math.round(FIN_MESES.pagar[i]/2.2)}%;animation-delay:${.15+i*.08}s"></div></div>
+          <div class="cbar-col"><span class="cv" style="color:var(--gold-2)">${FIN_MESES.receber[i]}K</span><div class="cbar l" style="height:${Math.round(FIN_MESES.receber[i]/2.2)}%;animation-delay:${.1+i*.08}s"></div></div>
+          <div class="cbar-col"><span class="cv" style="color:var(--danger)">${FIN_MESES.pagar[i]}K</span><div class="cbar p" style="height:${Math.round(FIN_MESES.pagar[i]/2.2)}%;animation-delay:${.15+i*.08}s"></div></div>
         </div>
         <span class="cl">${m}</span>
       </div>`).join('');
