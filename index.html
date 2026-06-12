@@ -202,6 +202,9 @@ main{padding:30px 36px 60px;min-width:0}
 .cgroup{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;position:relative}
 .cbars{display:flex;gap:4px;align-items:flex-end;height:100%;width:100%;justify-content:center}
 .cbar{width:38%;max-width:26px;border-radius:6px 6px 2px 2px;transform-origin:bottom;animation:grow .9s cubic-bezier(.2,.8,.2,1) backwards}
+.cbar-col{width:38%;max-width:26px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.cbar-col .cbar{width:100%;max-width:none}
+.cv{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;margin-bottom:4px;line-height:1;white-space:nowrap}
 .cbar.v{background:linear-gradient(to top,#3d6b4d,var(--ok))}
 .cbar.l{background:linear-gradient(to top,var(--gold-3),var(--gold-2))}
 .cbar.p{background:linear-gradient(to top,#6e3a31,var(--danger))}
@@ -408,6 +411,11 @@ td .mono,.mono-soft{font-family:'JetBrains Mono',monospace;font-size:12px;color:
 .cat-row .cr-t span{font-size:11px;color:var(--txt-soft)}
 .cat-row .cr-p{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--gold-2);white-space:nowrap}
 
+@media (prefers-reduced-motion: reduce){
+  .cbar,.funnel-fill,.rise,.msg{animation:none!important}
+  .rise{opacity:1}
+  .sr{opacity:1;transform:none;transition:none}
+}
 @media (max-width:1100px){
   .kpis{grid-template-columns:repeat(2,1fr)}
   .grid-2{grid-template-columns:1fr}
@@ -834,8 +842,8 @@ function renderChart(){
   $('#chartEl').innerHTML = d.l.map((lv,i) => `
     <div class="cgroup">
       <div class="cbars">
-        <div class="cbar l" style="height:${lv}%;animation-delay:${.1+i*.1}s"></div>
-        <div class="cbar v" style="height:${d.v[i]}%;animation-delay:${.15+i*.1}s"></div>
+        <div class="cbar-col"><span class="cv" style="color:var(--gold-2)">${lv}</span><div class="cbar l" style="height:${Math.round(lv*.85)}%;animation-delay:${.1+i*.1}s"></div></div>
+        <div class="cbar-col"><span class="cv" style="color:var(--ok)">${d.v[i]}</span><div class="cbar v" style="height:${Math.round(d.v[i]*.85)}%;animation-delay:${.15+i*.1}s"></div></div>
       </div>
       <span class="cl">Sem ${i+1}</span>
     </div>`).join('');
@@ -955,8 +963,8 @@ function renderFin(){
     $('#finChartEl').innerHTML = FIN_MESES.labels.map((m,i) => `
       <div class="cgroup">
         <div class="cbars">
-          <div class="cbar l" style="height:${Math.round(FIN_MESES.receber[i]/2)}%;animation-delay:${.1+i*.08}s"></div>
-          <div class="cbar p" style="height:${Math.round(FIN_MESES.pagar[i]/2)}%;animation-delay:${.15+i*.08}s"></div>
+          <div class="cbar-col"><span class="cv" style="color:var(--gold-2)">${FIN_MESES.receber[i]}</span><div class="cbar l" style="height:${Math.round(FIN_MESES.receber[i]/2.2)}%;animation-delay:${.1+i*.08}s"></div></div>
+          <div class="cbar-col"><span class="cv" style="color:var(--danger)">${FIN_MESES.pagar[i]}</span><div class="cbar p" style="height:${Math.round(FIN_MESES.pagar[i]/2.2)}%;animation-delay:${.15+i*.08}s"></div></div>
         </div>
         <span class="cl">${m}</span>
       </div>`).join('');
