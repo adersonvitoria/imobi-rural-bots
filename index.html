@@ -204,6 +204,7 @@ main{padding:30px 36px 60px;min-width:0}
 .cbar{width:38%;max-width:26px;border-radius:6px 6px 2px 2px;transform-origin:bottom;animation:grow .9s cubic-bezier(.2,.8,.2,1) backwards}
 .cbar.v{background:linear-gradient(to top,#3d6b4d,var(--ok))}
 .cbar.l{background:linear-gradient(to top,var(--gold-3),var(--gold-2))}
+.cbar.p{background:linear-gradient(to top,#6e3a31,var(--danger))}
 @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 .cgroup .cl{font-size:10px;font-weight:600;color:var(--txt-soft);text-transform:uppercase;letter-spacing:.06em;position:absolute;bottom:-24px}
 .chart-wrap{padding-bottom:26px}
@@ -365,6 +366,23 @@ td .mono,.mono-soft{font-family:'JetBrains Mono',monospace;font-size:12px;color:
 .pc-cap{display:block;font-size:10px;color:#56655e;margin-top:2px}
 .cat-thumb{width:56px;height:40px;border-radius:9px;overflow:hidden;flex-shrink:0;line-height:0;border:1px solid var(--line-soft)}
 .cat-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+/* documentos dentro do chat (contrato, assinatura, PIX) */
+.doc-card{border:1px solid #ddd5c0;border-radius:6px;background:#fbf8f0;padding:10px 12px;margin:3px 0;min-width:218px}
+.doc-card .dc-head{
+  display:flex;align-items:center;gap:6px;font-size:9px;font-weight:800;letter-spacing:.12em;
+  color:#8a6c24;text-transform:uppercase;border-bottom:1px solid #eae2cb;padding-bottom:6px;margin-bottom:7px;
+}
+.doc-card h5{font-size:12px;color:#1c211c;margin-bottom:6px;font-weight:800;line-height:1.3}
+.doc-row{display:flex;justify-content:space-between;gap:10px;font-size:10.5px;color:#56655e;padding:3px 0;border-bottom:1px dashed #efe8d3}
+.doc-row b{color:#1c211c;font-weight:700;text-align:right}
+.doc-stamp{margin-top:8px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:3px;display:inline-block}
+.stamp-wait{background:rgba(227,179,76,.2);color:#96701d}
+.stamp-ok{background:rgba(58,143,93,.16);color:#2e7d4f}
+.sign-hash{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:#7c8780;word-break:break-all;margin-top:6px;line-height:1.5}
+.pix-qr{display:flex;justify-content:center;margin:8px 0 6px}
+.pix-qr svg{width:132px;height:132px;background:#fff;border:5px solid #fff;outline:1px solid #ddd5c0;border-radius:4px}
+.pix-code{font-family:'JetBrains Mono',monospace;font-size:8.5px;word-break:break-all;background:#f3eedd;border:1px dashed #d3c9a8;border-radius:4px;padding:6px 8px;color:#6b7570;margin-top:6px;line-height:1.5}
+.pix-val{text-align:center;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:#075e54}
 /* card de imóvel dentro do chat */
 .pcard{border-left:3px solid var(--gold);padding:2px 4px 2px 10px;margin:2px 0}
 .pcard .pc-tag{
@@ -492,11 +510,11 @@ td .mono,.mono-soft{font-family:'JetBrains Mono',monospace;font-size:12px;color:
         <svg><use href="#agaSymbol"/></svg>
         <span><b>A.G.A.</b><small>Assessoria Imobiliária<br>e Jurídica</small></span>
       </div>
-      <button class="nav-item on" data-page="overview"><span class="ic">◈</span>Visão Geral</button>
+      <button class="nav-item on" data-page="financeiro"><span class="ic">◆</span><span id="navFinLabel">Financeiro</span></button>
+      <button class="nav-item" data-page="overview"><span class="ic">◈</span>Visão Geral</button>
       <button class="nav-item" data-page="leads"><span class="ic">◎</span>Leads</button>
       <button class="nav-item" data-page="agenda"><span class="ic">▤</span>Agenda de Visitas</button>
       <button class="nav-item" data-page="robo"><span class="ic">✳</span>Testar Robô</button>
-      <button class="nav-item" data-page="financeiro"><span class="ic">◆</span><span id="navFinLabel">Financeiro</span></button>
       <button class="nav-item" data-page="equipe" id="navEquipe"><span class="ic">⬡</span>Equipe</button>
       <div class="side-spacer"></div>
       <div class="side-user">
@@ -576,6 +594,30 @@ td .mono,.mono-soft{font-family:'JetBrains Mono',monospace;font-size:12px;color:
 
       <!-- ===== FINANCEIRO ===== -->
       <section class="page" id="page-financeiro">
+        <div id="finDirWrap">
+          <div class="kpis" id="finKpis"></div>
+          <div class="grid-2">
+            <div class="panel chart-wrap">
+              <h4>Contas a receber × a pagar</h4>
+              <div class="p-sub">Fluxo mensal consolidado — 1º semestre 2026 (R$ mil)</div>
+              <div class="chart" id="finChartEl"></div>
+              <div class="legend">
+                <span><i style="background:var(--gold)"></i>A receber</span>
+                <span><i style="background:var(--danger)"></i>A pagar</span>
+              </div>
+            </div>
+            <div class="panel">
+              <h4>Contas a pagar — junho</h4>
+              <div class="p-sub">Compromissos do mês por vencimento</div>
+              <div id="pagarList"></div>
+            </div>
+          </div>
+          <div class="panel tbl-scroll" style="margin-bottom:14px">
+            <h4>Contratos — informações financeiras e cadastrais</h4>
+            <div class="p-sub">Gerados pelo robô, assinados digitalmente e validados pelo jurídico A.G.A.</div>
+            <table class="tbl" id="contratosTable"></table>
+          </div>
+        </div>
         <div class="grid-2">
           <div class="panel">
             <h4 id="finTitle">Financeiro do mês</h4>
@@ -742,7 +784,7 @@ function enterApp(){
   $('#crumbScope').textContent = isDir() ? 'A.G.A. — todas as operações' : 'Carteira de ' + user.nome.split(' ')[0];
   $('#navEquipe').style.display = isDir() ? 'flex' : 'none';
   $('#navFinLabel').textContent = isDir() ? 'Financeiro' : 'Minhas Comissões';
-  goPage('overview');
+  goPage('financeiro');
   renderAll();
 }
 
@@ -867,9 +909,69 @@ function renderAgenda(){
 }
 
 /* financeiro */
+const CONTRATOS = [
+  { num:'AGA-2026-0143', comprador:'Débora Rosa',  cpf:'012.•••.•••-40', imovel:'Sítio c/ açude · Costa do Ipiranga', valor:430000, entrada:86000,  parcelas:'24x R$ 14.333', pagas:2, assinado:'03/06/2026', status:'em-dia',   corretor:'ana' },
+  { num:'AGA-2026-0141', comprador:'Renata Dias',  cpf:'984.•••.•••-02', imovel:'Chácara 1,5 ha · Itacolomi',         valor:340000, entrada:68000,  parcelas:'30x R$ 9.066',  pagas:1, assinado:'05/06/2026', status:'em-dia',   corretor:'ricardo' },
+  { num:'AGA-2026-0140', comprador:'Paulo Krause', cpf:'455.•••.•••-77', imovel:'Sítio 6 ha · Morungava',             valor:580000, entrada:290000, parcelas:'12x R$ 24.166', pagas:1, assinado:'07/06/2026', status:'em-dia',   corretor:'ricardo' },
+  { num:'AGA-2026-0137', comprador:'Vera Lopes',   cpf:'301.•••.•••-15', imovel:'Chácara 2,5 ha · Barro Vermelho',    valor:410000, entrada:82000,  parcelas:'36x R$ 9.111',  pagas:0, assinado:'28/05/2026', status:'atrasado', corretor:'marcos' }
+];
+const FIN_MESES = { labels:['Jan','Fev','Mar','Abr','Mai','Jun'], receber:[95,110,128,142,160,186], pagar:[70,78,85,92,104,117] };
+const CONTAS_PAGAR = [
+  ['◆','Comissões dos corretores','venc. 30/06','R$ 73,2 mil'],
+  ['▣','Impostos e taxas','venc. 28/06','R$ 21,0 mil'],
+  ['◎','Tráfego pago (Meta Ads)','venc. 20/06','R$ 12,5 mil'],
+  ['⚖','Custas de cartório e ITBI','venc. 25/06','R$ 8,4 mil'],
+  ['✳','Plano dos robôs + mensagens','venc. 15/06','R$ 1.890']
+];
+const CONTRATO_TAG = {
+  'em-dia':       '<span class="tag quali">Em dia</span>',
+  'atrasado':     '<span class="tag perdido">Parcela atrasada</span>',
+  'entrada-paga': '<span class="tag fechado">Entrada paga ✓</span>'
+};
 function renderFin(){
   const fechs = isDir() ? FECHAMENTOS : FECHAMENTOS.filter(f => f.corretor === user.corretorId);
+  $('#finDirWrap').style.display = isDir() ? 'block' : 'none';
   if (isDir()){
+    /* KPIs de contas a receber / pagar */
+    const entradasRobo = CONTRATOS.filter(c => c.viaRobo).reduce((s,c) => s + c.entrada, 0);
+    const kpis = [
+      ['◆','Contas a receber','R$ 186,4 mil','junho · parcelas + entradas · <span class="delta up">▲ 16%</span>'],
+      ['▣','Contas a pagar','R$ 116,9 mil','comissões, mídia, custas e impostos'],
+      ['✦','Saldo projetado','R$ 69,5 mil','fluxo de caixa de junho · <span class="delta up">▲ 24%</span>'],
+      ['⚖','Contratos ativos', String(CONTRATOS.length),
+        entradasRobo ? `<span class="delta up">▲ ${fmtBRL(entradasRobo)}</span> em entradas via robô` : 'assinados digitalmente', true]
+    ];
+    $('#finKpis').innerHTML = kpis.map(([ic,l,v,s,hero]) => `
+      <div class="kpi${hero?' hero-kpi':''}">
+        <div class="k-label"><span class="k-ic">${ic}</span>${l}</div>
+        <div class="k-val">${v}</div>
+        <div class="k-sub">${s}</div>
+      </div>`).join('');
+    /* gráfico receber × pagar */
+    $('#finChartEl').innerHTML = FIN_MESES.labels.map((m,i) => `
+      <div class="cgroup">
+        <div class="cbars">
+          <div class="cbar l" style="height:${Math.round(FIN_MESES.receber[i]/2)}%;animation-delay:${.1+i*.08}s"></div>
+          <div class="cbar p" style="height:${Math.round(FIN_MESES.pagar[i]/2)}%;animation-delay:${.15+i*.08}s"></div>
+        </div>
+        <span class="cl">${m}</span>
+      </div>`).join('');
+    /* contas a pagar */
+    $('#pagarList').innerHTML = CONTAS_PAGAR.map(([ic,t,s,v]) => `
+      <div class="fin-row"><div class="fin-ic">${ic}</div><div class="fr-t"><b>${t}</b><span>${s}</span></div><div class="fr-v"><b class="mono">${v}</b></div></div>`).join('') + `
+      <div class="fin-row"><div class="fin-ic hl">Σ</div><div class="fr-t"><b>Total a pagar — junho</b><span>5 compromissos</span></div><div class="fr-v"><b class="mono" style="color:var(--danger)">R$ 116,9 mil</b></div></div>`;
+    /* contratos */
+    $('#contratosTable').innerHTML = `<thead><tr><th>Nº contrato</th><th>Comprador</th><th>Imóvel</th><th>Valor</th><th>Entrada</th><th>Saldo</th><th>Assinado em</th><th>Situação</th></tr></thead><tbody>` +
+      CONTRATOS.map(c => `<tr${c.viaRobo?' style="background:rgba(212,175,55,.06)"':''}>
+        <td class="mono">${c.viaRobo?'✳ ':''}${c.num}</td>
+        <td><div class="lead-name"><span class="lead-av">${c.comprador.split(' ').map(p=>p[0]).slice(0,2).join('')}</span><span>${c.comprador}<small>CPF ${c.cpf} · assinatura digital ✓</small></span></div></td>
+        <td>${c.imovel}</td>
+        <td><span class="gold-val">${fmtBRL(c.valor)}</span></td>
+        <td><span class="gold-val">${fmtBRL(c.entrada)}</span></td>
+        <td class="mono">${c.parcelas}${c.pagas?` · ${c.pagas} pagas`:''}</td>
+        <td class="mono">${c.assinado}</td>
+        <td>${CONTRATO_TAG[c.status]||c.status}</td>
+      </tr>`).join('') + '</tbody>';
     $('#finTitle').textContent = 'Financeiro do mês';
     $('#finSub').textContent = 'Resultado direto atribuído aos robôs — empresa inteira';
     $('#finRows').innerHTML = `
@@ -906,19 +1008,79 @@ function renderFin(){
 
 /* ================= TESTAR ROBÔ — motor de conversa ================= */
 const IMOVEIS = [
-  { id:1, tipo:'sitio',   nome:'Sítio Recanto Verde',    local:'Morungava',         area:'3,5 ha',   preco:480000, dest:'Casa de alvenaria 3 dorm., açude, vertente própria e pomar. 9 km do asfalto, acesso bom o ano todo.', cond:'Aceita proposta e estuda permuta por imóvel urbano em Gravataí.', fotos:[9,3,6] },
-  { id:2, tipo:'chacara', nome:'Chácara do Açude',       local:'Itacolomi',         area:'2 ha',     preco:365000, dest:'Casa 2 dorm., piscina, açude com peixe, pomar formado e luz trifásica. Ideal pra moradia ou lazer.', cond:'Entrada + parcelamento direto em até 36x com o proprietário.', fotos:[5,2,1] },
-  { id:3, tipo:'terreno', nome:'Terreno do Arroio',      local:'Barro Vermelho',    area:'5.000 m²', preco:145000, dest:'Frente pra estrada municipal, arroio nos fundos, parte plana pronta pra construir. Escriturado.', cond:'Entrada de 30% + 24x direto.', fotos:[2,6,8] },
-  { id:4, tipo:'lote',    nome:'Lote Portal do Campo',   local:'Costa do Ipiranga', area:'1.250 m²', preco:98000,  dest:'Condomínio rural fechado com portaria, água e luz na porta. Pronto pra construir.', cond:'Entrada de 20% + 48x fixas.', fotos:[4,6,2] },
-  { id:5, tipo:'campo',   nome:'Campo Boa Vista',        local:'Morungava',         area:'12 ha',    preco:980000, dest:'Pastagem formada, mangueira, galpão de 200 m² e açude grande. Perfeito pra gado ou plantio.', cond:'À vista com desconto ou 50% de entrada + 12x.', fotos:[3,7,9] },
-  { id:6, tipo:'chacara', nome:'Chácara das Figueiras',  local:'Itacolomi',         area:'1,5 ha',   preco:340000, dest:'Figueiras centenárias, casa mista reformada, horta e galinheiro. Clima de interior a 35 min do centro.', cond:'Financiamento direto estudado caso a caso.', fotos:[6,1,8] },
-  { id:7, tipo:'sitio',   nome:'Sítio Santa Clara',      local:'Costa do Ipiranga', area:'4 ha',     preco:495000, dest:'Piscina, açude, mata nativa preservada, casa sede + casa de caseiro. Documentação 100% em dia.', cond:'Aceita carro ou caminhonete como parte do negócio.', fotos:[7,3,9] },
-  { id:8, tipo:'terreno', nome:'Terreno da Encosta',     local:'Barro Vermelho',    area:'2.800 m²', preco:120000, dest:'Vista pro vale, poço artesiano perfurado e acesso o ano todo. Ótimo pra casa de campo.', cond:'Entrada + 30x direto.', fotos:[8,1,2] }
+  { id:1, tipo:'sitio',   nome:'Sítio Recanto Verde',    local:'Morungava',         area:'3,5 ha',   preco:480000, dest:'Casa de alvenaria 3 dorm., açude, vertente própria e pomar. 9 km do asfalto, acesso bom o ano todo.', cond:'Aceita proposta e estuda permuta por imóvel urbano em Gravataí.', fotos:[9,3,6], entradaPct:20, parcN:24 },
+  { id:2, tipo:'chacara', nome:'Chácara do Açude',       local:'Itacolomi',         area:'2 ha',     preco:365000, dest:'Casa 2 dorm., piscina, açude com peixe, pomar formado e luz trifásica. Ideal pra moradia ou lazer.', cond:'Entrada de 20% + parcelamento direto em até 36x com o proprietário.', fotos:[5,2,1], entradaPct:20, parcN:36 },
+  { id:3, tipo:'terreno', nome:'Terreno do Arroio',      local:'Barro Vermelho',    area:'5.000 m²', preco:145000, dest:'Frente pra estrada municipal, arroio nos fundos, parte plana pronta pra construir. Escriturado.', cond:'Entrada de 30% + 24x direto.', fotos:[2,6,8], entradaPct:30, parcN:24 },
+  { id:4, tipo:'lote',    nome:'Lote Portal do Campo',   local:'Costa do Ipiranga', area:'1.250 m²', preco:98000,  dest:'Condomínio rural fechado com portaria, água e luz na porta. Pronto pra construir.', cond:'Entrada de 20% + 48x fixas.', fotos:[4,6,2], entradaPct:20, parcN:48 },
+  { id:5, tipo:'campo',   nome:'Campo Boa Vista',        local:'Morungava',         area:'12 ha',    preco:980000, dest:'Pastagem formada, mangueira, galpão de 200 m² e açude grande. Perfeito pra gado ou plantio.', cond:'À vista com desconto ou 50% de entrada + 12x.', fotos:[3,7,9], entradaPct:50, parcN:12 },
+  { id:6, tipo:'chacara', nome:'Chácara das Figueiras',  local:'Itacolomi',         area:'1,5 ha',   preco:340000, dest:'Figueiras centenárias, casa mista reformada, horta e galinheiro. Clima de interior a 35 min do centro.', cond:'Entrada de 20% + 24x direto, demais condições caso a caso.', fotos:[6,1,8], entradaPct:20, parcN:24 },
+  { id:7, tipo:'sitio',   nome:'Sítio Santa Clara',      local:'Costa do Ipiranga', area:'4 ha',     preco:495000, dest:'Piscina, açude, mata nativa preservada, casa sede + casa de caseiro. Documentação 100% em dia.', cond:'Entrada de 20% + 24x; aceita carro ou caminhonete como parte do negócio.', fotos:[7,3,9], entradaPct:20, parcN:24 },
+  { id:8, tipo:'terreno', nome:'Terreno da Encosta',     local:'Barro Vermelho',    area:'2.800 m²', preco:120000, dest:'Vista pro vale, poço artesiano perfurado e acesso o ano todo. Ótimo pra casa de campo.', cond:'Entrada de 20% + 30x direto.', fotos:[8,1,2], entradaPct:20, parcN:30 }
 ];
 
 /* fotos reais do diretório do projeto (1.png … 9.png) */
 function propIMG(p, i=0){
   return `<img src="${p.fotos[i]}.png" alt="${p.nome}" loading="lazy">`;
+}
+
+/* ===== fechamento digital: contrato → assinatura → PIX ===== */
+function dealInfo(p){
+  const entrada = Math.round(p.preco * p.entradaPct / 100);
+  const parcela = Math.round((p.preco - entrada) / p.parcN);
+  return { entrada, parcela, n: p.parcN, pct: p.entradaPct };
+}
+function contratoNum(){ return 'AGA-2026-0' + (147 + CONTRATOS.filter(c => c.viaRobo).length); }
+function qrSVG(seed){
+  let s = (seed * 2654435761) % 2147483647;
+  const rnd = () => ((s = (s * 48271) % 2147483647) / 2147483647);
+  const n = 21, cs = 6;
+  const inFinder = (x,y) => (x<8&&y<8) || (x>n-9&&y<8) || (x<8&&y>n-9);
+  let cells = '';
+  for (let y=0; y<n; y++) for (let x=0; x<n; x++)
+    if (!inFinder(x,y) && rnd() > .52) cells += `<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" fill="#111"/>`;
+  const finder = (x,y) =>
+    `<rect x="${x*cs}" y="${y*cs}" width="${7*cs}" height="${7*cs}" fill="#111"/>`+
+    `<rect x="${(x+1)*cs}" y="${(y+1)*cs}" width="${5*cs}" height="${5*cs}" fill="#fff"/>`+
+    `<rect x="${(x+2)*cs}" y="${(y+2)*cs}" width="${3*cs}" height="${3*cs}" fill="#111"/>`;
+  return `<svg viewBox="0 0 ${n*cs} ${n*cs}" xmlns="http://www.w3.org/2000/svg"><rect width="${n*cs}" height="${n*cs}" fill="#fff"/>${cells}${finder(0,0)}${finder(n-7,0)}${finder(0,n-7)}</svg>`;
+}
+function pixCode(valor){
+  return `00020126580014BR.GOV.BCB.PIX0136pix@aga.imb.br-entrada-contrato5204000053039865406${valor.toFixed(2)}5802BR5925AGA ASSESSORIA IMOBILIARI6008GRAVATAI62190515${(chat&&chat.numContrato||'AGA20260147').replace(/-/g,'')}6304B7A1`;
+}
+function contratoCardHTML(p, d, num, assinado){
+  return `<div class="doc-card">
+    <div class="dc-head">⚖ A.G.A. Assessoria Imobiliária e Jurídica</div>
+    <h5>CONTRATO PARTICULAR DE COMPRA E VENDA — Nº ${num}</h5>
+    <div class="doc-row"><span>Objeto</span><b>${p.nome} · ${p.area} · ${p.local}, Gravataí/RS</b></div>
+    <div class="doc-row"><span>Comprador</span><b>Você (dados do seu cadastro)</b></div>
+    <div class="doc-row"><span>Vendedor</span><b>Proprietário, representado pela A.G.A.</b></div>
+    <div class="doc-row"><span>Valor total</span><b>${fmtBRL(p.preco)}</b></div>
+    <div class="doc-row"><span>Entrada (${d.pct}%)</span><b>${fmtBRL(d.entrada)} via PIX</b></div>
+    <div class="doc-row"><span>Saldo</span><b>${d.n}x de ${fmtBRL(d.parcela)} direto</b></div>
+    <div class="doc-row"><span>Foro</span><b>Comarca de Gravataí/RS</b></div>
+    <span class="doc-stamp ${assinado?'stamp-ok':'stamp-wait'}">${assinado?'✓ assinado digitalmente':'aguardando assinatura'}</span>
+  </div>`;
+}
+function signCardHTML(num){
+  return `<div class="doc-card">
+    <div class="dc-head">✍ Assinatura Digital — Contrato ${num}</div>
+    <div class="doc-row"><span>Comprador</span><b>Assinado ✓ · hoje às ${hora()}</b></div>
+    <div class="doc-row"><span>A.G.A. (vendedora)</span><b>Assinado ✓ · Augusto G. Almeida</b></div>
+    <div class="doc-row"><span>Padrão</span><b>ICP-Brasil · MP 2.200-2/2001</b></div>
+    <span class="doc-stamp stamp-ok">✓ documento com validade jurídica</span>
+    <span class="sign-hash">sha-256 · 3f8a9c4e7b21d6f0a58e9d3c2b714c8de1f7a402bd6c913e</span>
+  </div>`;
+}
+function pixCardHTML(p, d, num){
+  return `<div class="doc-card">
+    <div class="dc-head">💠 PIX — Entrada do contrato ${num}</div>
+    <div class="pix-qr">${qrSVG(p.id * 7919)}</div>
+    <div class="pix-val">${fmtBRL(d.entrada)}</div>
+    <div class="doc-row"><span>Favorecido</span><b>A.G.A. Assessoria Imob. e Jurídica</b></div>
+    <div class="doc-row"><span>Conta</span><b>escrow · liberação na escritura</b></div>
+    <div class="pix-code">${pixCode(d.entrada)}</div>
+    <span class="doc-stamp stamp-wait">aguardando pagamento</span>
+  </div>`;
 }
 const TIPO_LABEL = { sitio:'Sítio', chacara:'Chácara', terreno:'Terreno', lote:'Lote', campo:'Campo' };
 const TIPS = [
@@ -929,6 +1091,7 @@ const TIPS = [
   'Aceita financiamento?',
   'Como funciona a documentação?',
   'Quero visitar no fim de semana',
+  'Quero fechar negócio e assinar o contrato',
   'Quero vender meu sítio'
 ];
 
@@ -972,7 +1135,7 @@ async function botSay(msgs, chips){
 }
 
 function resetChat(){
-  chat = { tipo:null, finalidade:null, budget:null, lastList:[], sel:null, visitOffer:false, venda:0 };
+  chat = { tipo:null, finalidade:null, budget:null, lastList:[], sel:null, visitOffer:false, venda:0, deal:0, numContrato:null };
   chatBox.innerHTML = '';
   addDay('Hoje');
   botSay([
@@ -1029,7 +1192,7 @@ function detalhes(p){
       `💰 <b>${fmtBRL(p.preco)}</b> — ${p.cond}<br>⚖️ Documentação revisada pelo <b>jurídico da A.G.A.</b>: matrícula limpa, pronta pra escriturar.`,
       `Quer conhecer pessoalmente? Tenho <b>sábado 9h30</b> ou <b>domingo 10h</b> com a corretora Ana 😊`
     ],
-    chips: ['Sábado 9h30','Domingo 10h','Aceita financiamento?','Ver outras opções']
+    chips: ['Sábado 9h30','Domingo 10h','Quero fechar negócio 🤝','Aceita financiamento?']
   };
 }
 
@@ -1078,6 +1241,65 @@ function responder(raw){
     ], chips:['Ver todas as opções','Quero visitar um imóvel'] };
   }
 
+  /* ===== fechamento digital ===== */
+  if (chat.sel && /(fechar|\baceito\b|quero comprar|vamos assinar|fazer proposta)/.test(t) && !/(contrato|assinar|pix)/.test(t)){
+    const d = dealInfo(chat.sel); chat.deal = Math.max(chat.deal, 1);
+    return { msgs:[
+      `Excelente decisão! 🤝 Condições negociadas pro <b>${chat.sel.nome}</b>:`,
+      `💰 Valor: <b>${fmtBRL(chat.sel.preco)}</b><br>▸ Entrada (${d.pct}%): <b>${fmtBRL(d.entrada)}</b> via PIX<br>▸ Saldo: <b>${d.n}x de ${fmtBRL(d.parcela)}</b> direto com o proprietário<br>⚖️ Contrato elaborado pelo jurídico da A.G.A. e registrado em cartório.`,
+      'Posso <b>gerar o contrato digital</b> agora mesmo?'
+    ], chips:['Gerar contrato 📄','Aceita financiamento?','Ver outras opções'] };
+  }
+  if (chat.sel && /contrato/.test(t) && !/(assinar|documenta|cartorio)/.test(t)){
+    const d = dealInfo(chat.sel); chat.deal = Math.max(chat.deal, 2);
+    chat.numContrato = chat.numContrato || contratoNum();
+    return { msgs:[
+      'Gerando o contrato com os dados da negociação… 📄',
+      contratoCardHTML(chat.sel, d, chat.numContrato, false),
+      'Confere os dados acima? Pra ter <b>validade jurídica</b>, é só assinar digitalmente — eu envio o código de verificação aqui mesmo.'
+    ], chips:['Assinar digitalmente ✍️','Falar com um corretor'] };
+  }
+  if (/(assinar|assinatura)/.test(t) && chat.sel){
+    if (chat.deal < 2){ chat.deal = 2; chat.numContrato = chat.numContrato || contratoNum();
+      const d = dealInfo(chat.sel);
+      return { msgs:['Primeiro deixa eu gerar o contrato pra ti 📄', contratoCardHTML(chat.sel, d, chat.numContrato, false), 'Agora sim — pronto pra assinar?'], chips:['Assinar digitalmente ✍️'] };
+    }
+    chat.deal = Math.max(chat.deal, 3);
+    const d = dealInfo(chat.sel);
+    return { msgs:[
+      'Enviei o código de verificação pro seu número… ✅ <b>Identidade confirmada!</b>',
+      signCardHTML(chat.numContrato),
+      `Contrato assinado pelas duas partes 🎉 Agora, pra <b>reservar o imóvel</b>, falta só a entrada de <b>${fmtBRL(d.entrada)}</b>. Quer que eu gere o PIX?`
+    ], chips:['Gerar PIX da entrada 💠'] };
+  }
+  if (/(\bpix\b|qr ?code)/.test(t) && chat.sel){
+    if (chat.deal < 3){
+      return { msgs:['Vamos por partes 😊 Primeiro a gente <b>gera e assina o contrato</b> — aí eu libero o PIX da entrada na hora!'], chips: chat.deal >= 2 ? ['Assinar digitalmente ✍️'] : ['Gerar contrato 📄'] };
+    }
+    chat.deal = Math.max(chat.deal, 4);
+    const d = dealInfo(chat.sel);
+    return { msgs:[
+      pixCardHTML(chat.sel, d, chat.numContrato),
+      'Pode pagar pelo QR Code ou copiar o código acima 👆 Assim que o pagamento cair, te confirmo aqui e o imóvel fica <b>reservado em contrato</b>.'
+    ], chips:['Já paguei ✅'] };
+  }
+  if (chat.deal >= 4 && /\b(paguei|pago|transferi|comprovante|caiu)\b/.test(t)){
+    chat.deal = 5;
+    const d = dealInfo(chat.sel);
+    CONTRATOS.unshift({
+      num: chat.numContrato, comprador:'Cliente do robô (demo)', cpf:'•••.•••.•••-••',
+      imovel:`${chat.sel.nome} · ${chat.sel.local}`, valor: chat.sel.preco, entrada: d.entrada,
+      parcelas:`${d.n}x ${fmtBRL(d.parcela)}`, pagas:0, assinado:'12/06/2026', status:'entrada-paga',
+      corretor:'ricardo', viaRobo:true
+    });
+    renderFin();
+    return { msgs:[
+      `<b>Pagamento confirmado!</b> ✅ Recebemos <b>${fmtBRL(d.entrada)}</b> via PIX na conta escrow.`,
+      `🎉 Parabéns! O <b>${chat.sel.nome}</b> está reservado no contrato <b>${chat.numContrato}</b>. O jurídico da A.G.A. já encaminha a escritura e eu te chamo pra agendar a entrega das chaves 🔑`,
+      '<i>— E olha que legal: o contrato já apareceu na tela <b>Financeiro</b> do painel, com a entrada recebida e as parcelas a receber 😉</i>'
+    ], chips:['Ver no Financeiro','Ver outras opções'] };
+  }
+
   /* financiamento / pagamento */
   if (/(financ|parcel|pagamento|entrada|prestacao|banco|consorcio)/.test(t)){
     const extra = chat.sel ? `No caso do <b>${chat.sel.nome}</b>: ${chat.sel.cond}` : 'A maioria dos nossos proprietários trabalha com <b>entrada + parcelamento direto</b>, sem banco.';
@@ -1103,8 +1325,8 @@ function responder(raw){
     return { msgs:[
       `Fechado! ✅ Visita ao <b>${chat.sel.nome}</b> agendada pra <b>${slot}</b> com a corretora Ana Lima.`,
       'Vou te mandar a <b>localização</b> e um <b>lembrete na véspera</b> 📍 E o jurídico já deixa a matrícula separada pra você conferir. Leva calçado fechado que a propriedade é grande 😄',
-      'Posso ajudar em mais alguma coisa?'
-    ], chips:['Ver outras opções','Como funciona a documentação?','Falar com um corretor'] };
+      'E se você já estiver decidido, dá até pra <b>fechar negócio por aqui</b>: gero o contrato, você assina digitalmente e pago a entrada no PIX 😉'
+    ], chips:['Quero fechar negócio 🤝','Como funciona a documentação?','Falar com um corretor'] };
   }
   if (chat.visitOffer && /(sim|quero|pode|claro|bora|vamos)/.test(t)){
     return { msgs:[`Perfeito! Prefere <b>sábado 9h30</b> ou <b>domingo 10h</b>? 😊`], chips:['Sábado 9h30','Domingo 10h'] };
@@ -1199,6 +1421,7 @@ let botBusy = false;
 async function sendUser(text){
   text = text.trim();
   if (!text || botBusy) return;
+  if (norm(text) === 'ver no financeiro'){ goPage('financeiro'); return; }
   chatInput.value = '';
   addMsg('out', text.replace(/</g,'&lt;'));
   botBusy = true;
