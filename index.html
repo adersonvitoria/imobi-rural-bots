@@ -915,12 +915,16 @@ const CONTRATOS = [
   { num:'AGA-2026-0140', comprador:'Paulo Krause', cpf:'455.•••.•••-77', imovel:'Sítio 6 ha · Morungava',             valor:580000, entrada:290000, parcelas:'12x R$ 24.166', pagas:1, assinado:'07/06/2026', status:'em-dia',   corretor:'ricardo' },
   { num:'AGA-2026-0137', comprador:'Vera Lopes',   cpf:'301.•••.•••-15', imovel:'Chácara 2,5 ha · Barro Vermelho',    valor:410000, entrada:82000,  parcelas:'36x R$ 9.111',  pagas:0, assinado:'28/05/2026', status:'atrasado', corretor:'marcos' }
 ];
-const FIN_MESES = { labels:['Jan','Fev','Mar','Abr','Mai','Jun'], receber:[95,110,128,142,160,186], pagar:[70,78,85,92,104,117] };
+/* contas a pagar = 40% das contas a receber */
+const FIN_MESES = (() => {
+  const receber = [95,110,128,142,160,186];
+  return { labels:['Jan','Fev','Mar','Abr','Mai','Jun'], receber, pagar: receber.map(v => Math.round(v * .4)) };
+})();
 const CONTAS_PAGAR = [
-  ['◆','Comissões dos corretores','venc. 30/06','R$ 73,2 mil'],
-  ['▣','Impostos e taxas','venc. 28/06','R$ 21,0 mil'],
-  ['◎','Tráfego pago (Meta Ads)','venc. 20/06','R$ 12,5 mil'],
-  ['⚖','Custas de cartório e ITBI','venc. 25/06','R$ 8,4 mil'],
+  ['◆','Comissões dos corretores','venc. 30/06','R$ 46,0 mil'],
+  ['▣','Impostos e taxas','venc. 28/06','R$ 13,2 mil'],
+  ['◎','Tráfego pago (Meta Ads)','venc. 20/06','R$ 8,1 mil'],
+  ['⚖','Custas de cartório e ITBI','venc. 25/06','R$ 5,4 mil'],
   ['✳','Plano dos robôs + mensagens','venc. 15/06','R$ 1.890']
 ];
 const CONTRATO_TAG = {
@@ -936,8 +940,8 @@ function renderFin(){
     const entradasRobo = CONTRATOS.filter(c => c.viaRobo).reduce((s,c) => s + c.entrada, 0);
     const kpis = [
       ['◆','Contas a receber','R$ 186,4 mil','junho · parcelas + entradas · <span class="delta up">▲ 16%</span>'],
-      ['▣','Contas a pagar','R$ 116,9 mil','comissões, mídia, custas e impostos'],
-      ['✦','Saldo projetado','R$ 69,5 mil','fluxo de caixa de junho · <span class="delta up">▲ 24%</span>'],
+      ['▣','Contas a pagar','R$ 74,6 mil','40% das contas a receber'],
+      ['✦','Saldo projetado','R$ 111,8 mil','fluxo de caixa de junho · <span class="delta up">▲ 24%</span>'],
       ['⚖','Contratos ativos', String(CONTRATOS.length),
         entradasRobo ? `<span class="delta up">▲ ${fmtBRL(entradasRobo)}</span> em entradas via robô` : 'assinados digitalmente', true]
     ];
@@ -959,7 +963,7 @@ function renderFin(){
     /* contas a pagar */
     $('#pagarList').innerHTML = CONTAS_PAGAR.map(([ic,t,s,v]) => `
       <div class="fin-row"><div class="fin-ic">${ic}</div><div class="fr-t"><b>${t}</b><span>${s}</span></div><div class="fr-v"><b class="mono">${v}</b></div></div>`).join('') + `
-      <div class="fin-row"><div class="fin-ic hl">Σ</div><div class="fr-t"><b>Total a pagar — junho</b><span>5 compromissos</span></div><div class="fr-v"><b class="mono" style="color:var(--danger)">R$ 116,9 mil</b></div></div>`;
+      <div class="fin-row"><div class="fin-ic hl">Σ</div><div class="fr-t"><b>Total a pagar — junho</b><span>5 compromissos · 40% do recebível</span></div><div class="fr-v"><b class="mono" style="color:var(--danger)">R$ 74,6 mil</b></div></div>`;
     /* contratos */
     $('#contratosTable').innerHTML = `<thead><tr><th>Nº contrato</th><th>Comprador</th><th>Imóvel</th><th>Valor</th><th>Entrada</th><th>Saldo</th><th>Assinado em</th><th>Situação</th></tr></thead><tbody>` +
       CONTRATOS.map(c => `<tr${c.viaRobo?' style="background:rgba(212,175,55,.06)"':''}>
